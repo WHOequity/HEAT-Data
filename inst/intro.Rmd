@@ -1,0 +1,305 @@
+---
+title: "Creating the HEAT tables using the `heatdata` package"
+author: "Zev Ross"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+knitr::opts_chunk$set(message=FALSE)
+knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+# Introduction
+
+
+**Note that this vignette/set of instructions is for illustration -- to actually run the code you can see `data-raw/create-heat-datafiles.R`. You will need to copy data from the Google Drive folder (`HEAT-raw-data`) to the `data-raw/raw-nonspatial-data folder`.**
+
+This package is designed to take raw data either from WHO (the WHO database) or from users, do some fixes, do validation tests and then split the data into the datasets and informational datasets required by HEAT and HEAT Plus.
+
+For HEAT the package requires three things and for HEAT Plus it requires two of these:
+
+1. The HEAT database -- only required to create the HEAT pieces
+2. The countries dataset (with income categories etc), required for both
+3. The HEAT variable descriptions dataset, required for both
+
+# The process
+
+
+## Read in raw data
+
+
+For HEAT you read in the HEAT database and for HEAT Plus the `heat_data` will come from the user upload. For both you need the country data from WHO and they should be in the `data-raw/raw-nonspatial-data` folder.
+
+**Set paths to input datasets**
+
+```{r, message=FALSE, eval = TRUE}
+library(heatmeasures)
+library(heatdata)
+library(dplyr)
+my_path <- fs::path(rprojroot::find_root(rprojroot::is_git_root), "/data-raw/raw-nonspatial-data")
+heat_data_path <- my_path %>% fs::dir_ls(regexp = "[0-9]{8}-HEAT-database.xlsx")
+country_data_path <- my_path %>% fs::dir_ls(regexp = "[0-9]{8}-HEAT-countries.xlsx")
+```
+
+**Raw HEAT database**
+
+```{r}
+data_heat_raw <- readxl::read_excel(heat_data_path)
+data_heat_raw <- heatmeasures::add_strata_id(data_heat_raw)
+```
+
+**Countries database**
+
+```{r}
+data_countries <- readxl::read_excel(country_data_path)
+```
+
+
+## For vignette, take a sample of HEAT data
+
+```{r}
+data_heat_raw <- heatdata::sample_HEAT_data(data_heat_raw, n_per_dimension = 100)
+#readr::write_csv(x, "~/git-repos/HEAT-Plus/tests/data/from_heat_data_100perdimension.csv")
+```
+
+
+
+## Initial data changes and fixes (before validation tests)
+
+1. A few small data fixes like removing any rows with all `NA`
+2. Make sure integers are integers, characters are characters etc
+3. Drop defective strata, now this means all `NA` for `estimate` only
+4. Allow for the rename of input variables (now doesn't do anything for `heat_data`)
+
+**Raw HEAT database**
+
+```{r}
+has_req_vars <- heatdata::test_has_required_variables(data_heat_raw)
+
+if(has_req_vars$pass){
+  data_heat_raw <- heatdata::HEAT_data_fixes(data_heat_raw, table_type = "heat_data") #remove missing rows
+  data_heat_raw <- heatdata::HEAT_force_variable_types(data_heat_raw, table_type = "heat_data")
+  data_heat_raw <- heatdata::HEAT_drop_defective_strata(data_heat_raw)
+  data_heat_raw <- heatdata::HEAT_rename_variables(data_heat_raw, table_type = "heat_data")
+  data_heat_raw <- heatdata::HEAT_data_add_variables(data_heat_raw, table_type = "heat_data")
+}
+```
+
+**Countries database**
+
+```{r}
+# Note that since this is always WHO provided data (not user provided) not all of these
+# will be needed. For example, "force_variable_types" does nothing for the country_data
+data_countries <- heatdata::HEAT_data_fixes(data_countries, table_type = "country_data") #remove missing rows
+data_countries <- heatdata::HEAT_force_variable_types(data_countries, table_type = "country_data")
+data_countries <- heatdata::HEAT_rename_variables(data_countries, table_type = "country_data")
+data_countries <- heatdata::HEAT_data_add_variables(data_countries, table_type = "country_data")
+```
+
+
+
+## Run full dataset-level validation tests
+
+These tests determine whether the app will move forward with the app or return an error to the user (in contrast with the inequality measure-level tests that will only fail a strata/inequality measure).
+
+With only a couple of exceptions these are table-level tests (they apply to the entire table). There are only a couple of tests applied to strata that will fail an upload. Most of the strata-level tests will only fail for the computation of a measure (and these kind of tests are applied in the `heatmeasures` package.
+
+In the `heatdata::HEAT_variable_descriptions` table (which is based on an Excel file) there is a column for each test needed. For most of these tests there is a TRUE/FALSE for whether the test applies to a particular variable. But a few tests require a designation of a few vars. Like for order-related ones you need to tell the test which variable tells us that a strata is ordered, which variable has the order and which variable designates the reference.
+
+
+```{r}
+tests <- stringr::str_extract(names(heatdata::HEAT_variable_descriptions), 
+                              "^test_.*") %>% na.exclude()
+
+test_results <- HEAT_table_validation_tests(data_heat_raw, tests)
+test_results
+```
+
+
+## Create final tables
+
+**First confirm dataset is valid**
+
+```{r}
+all(test_results$passed_test)
+```
+
+
+
+**`data_heat` (formerly `maindata`)**
+
+```{r}
+data_heat_raw %>% glimpse()
+```
+
+
+**`data_countries` (formerly `countryinfo`)**
+
+
+```{r}
+data_countries %>% glimpse()
+
+```
+
+
+**`data_inequality_measures` (formerly `inequals`)**
+
+```{r}
+# Takes 10 minutes or more on full dataset
+library(future) # seems like this is required future:: does not work
+# Careful, I'm taking a sample so the vignette will run
+data_inequality_measures <- heatmeasures::HEAT_measures_full_process(data_heat_raw)
+data_inequality_measures %>% glimpse()
+```
+
+
+**`data_heat_strata` (formerly `strata`)**
+
+```{r}
+data_heat_strata <- HEAT_create_strata_table(data_heat_raw)
+data_heat_strata %>% glimpse()
+```
+
+
+
+**`info_setting_yr_src` (formerly `years`)**
+
+
+```{r}
+info_setting_yr_src <- HEAT_create_setyrsrc_table(data_heat_raw)
+info_setting_yr_src %>% glimpse()
+```
+
+
+**info_dimensions (formerly `dimensions`)**
+
+```{r}
+info_dimensions <- HEAT_create_dimension_table(data_heat_raw, cutoff_for_single_color = 7)
+info_dimensions %>% glimpse()
+```
+
+
+
+
+**`info_subregion_minmax` (formerly `subregion_minmax`)**
+
+```{r}
+# Only required for HEAT (for the mapping)
+info_subregion_minmax <- HEAT_create_subregionminmax_table(data_heat_raw)
+info_subregion_minmax %>% glimpse()
+```
+
+
+
+
+
+# Appendix
+
+## Individual tests for debugging
+
+```{r, eval = FALSE}
+# heat_data %>% select(-estimate)
+#1. 
+heat_data %>% select(-estimate) %>% 
+  test_has_required_variables()
+
+#2. 
+tst <- heat_data
+tst$setting[1] <- NA
+tst %>% test_key_vars_complete()
+
+#3.
+heat_data %>% mutate(estimate = NA) %>% test_key_vars_not_empty()
+heat_data %>%  test_key_vars_not_empty()
+
+
+#4.
+tst <- heat_data 
+tst$setting[1] <- "2001"
+tst$source[1] <- "1.2"
+tst %>% test_chars_are_chars()
+
+#5.
+tst <- heat_data
+tst$iso3[1] <- "ab"
+tst %>% test_vars_3chars()
+
+
+#6.
+tst <- heat_data
+tst$estimate[1] <- "abc"
+tst %>% test_nums_not_char()
+
+
+
+#7
+heat_data %>% test_vars_4chars()
+
+
+#8
+
+tst <- heat_data
+tst$year[1] <- "1.111"
+tst %>% test_no_decimals()
+
+#9.
+tst <- heat_data
+tst$estimate[1] <- -4
+tst %>% test_all_nonnegative_or_NA()
+
+#10.
+tst <- heat_data[1:10,]
+tst$indicator_scale[1] <- 0
+tst %>% test_all_positive_or_NA()
+
+#11 and 12
+tst <- heat_data[1:10,]
+tst$favourable_indicator[1] <- 3
+tst %>% test_is_binary_or_NA()
+
+#13, 16, 17
+tst <- heat_data
+tst$ordered_dimension[1] <- 0
+tst %>% test_strata_ordered_andref()
+
+#14
+tst <- heat_data
+tst$subgroup_order[2] <- 3 # 1st is part of ordered_dimension
+tst %>% test_strata_subgroup_sequence()
+
+#18
+tst <- heat_data
+tst$iso3[2] <- "BAT"
+tst %>% test_setting_iso3_match()
+
+# 19
+tst <- heat_data
+tst$indicator_abbr[2] <- "BAT"
+tst %>% test_indicator_unique_names()
+
+#19b
+
+tst <- heat_data
+tst$indicator_scale[2] <- 999
+tst %>% test_consistent_indicinfo()
+
+#20
+tst <- heat_data
+tst$ordered_dimension[1] <- 0
+tst %>% test_consistent_ordered_dimension()
+
+
+
+```
+
+

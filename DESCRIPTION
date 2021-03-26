@@ -1,0 +1,31 @@
+Type: Package
+Package: heatdata
+Title: HEAT Data application
+Version: 0.0.1
+Authors@R: 
+    c(person(family = "ZevRoss Spatial Anaylsis",
+             role = "cre",
+             email = "info@zevross.com"),
+      person(given = "Zev",
+             family = "Ross",
+             role = "ctb"))
+Description: An R package to generate data for the Health Equity Assessment Toolkit.
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+VignetteBuilder: knitr
+Imports: 
+    dplyr,
+    purrr,
+    tictoc
+Suggests: 
+    readr,
+    fs,
+    purrr,
+    dplyr,
+    heatmeasures
+Remotes:
+    whoequity/heat-measures
+License: GPL-3
+
