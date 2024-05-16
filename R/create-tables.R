@@ -12,7 +12,7 @@
 HEAT_create_strata_table <- function(.data){
 
   .data %>%
-    select(!!heatmeasures::strata_variables, strata_id) %>%
+    select(!!heatmeasures::HEAT_strata_variables, strata_id) %>%
     distinct()
 }
 
@@ -87,7 +87,7 @@ HEAT_create_dimension_table <- function(.data, cutoff_for_single_color = 7){
 #' @examples
 HEAT_create_setyrsrc_table <- function(.data){
 
-  vars <- heatmeasures::setting_year_source_variables
+  vars <- heatmeasures::HEAT_setting_year_source_variables
   .data %>%
     dplyr::select(!!vars) %>%
     dplyr::distinct() %>% 
@@ -109,8 +109,8 @@ HEAT_create_subregionminmax_table <- function(.data){
   filter(.data, dimension == "Subnational region") %>%
     group_by(setting, source, indicator_abbr, indicator_name) %>%
     summarise(
-      min = min(estimate, na.rm = TRUE),
-      max = max(estimate, na.rm = TRUE)
+      min = suppressWarnings(min(estimate, na.rm = TRUE)),
+      max = suppressWarnings(max(estimate, na.rm = TRUE))
     ) %>%
     ungroup() %>%
     mutate(

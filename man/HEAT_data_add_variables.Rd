@@ -11,9 +11,6 @@ HEAT_data_add_variables(.data, table_type = "all")
 
 \item{table_type}{either "who_data" or "country_data"}
 }
-\value{
-
-}
 \description{
 Add required new variables to the dataset
 }

@@ -91,10 +91,9 @@ test_chars_are_chars <- function(.data) {
                      !!sym(fname) ==  TRUE)
 
 
-
   # Using microbenchmark this method is a slight bit faster
   X <- select(.data, !!!syms(key_vars$VARIABLE)) %>%
-    purrr::map_lgl(~all(is.na(suppressWarnings(as.numeric(.)))))
+    purrr::map_lgl(~all(class(.) == "character"))
 
   # here we test if all characters are digits or if we have digit period digit
   # and then use !
@@ -282,7 +281,8 @@ test_is_binary_or_NA <- function(.data) {
 
 
 # 13, 16, 17
-test_strata_ordered_andref <- function(.data) {
+test_strata_ordered_andref <- function(.data, debug = FALSE) {
+
   .data <- .data %>% ungroup()
   thecall <- as.character(match.call()[[1]])
   fname <- thecall[length(thecall)]
@@ -339,6 +339,10 @@ test_strata_ordered_andref <- function(.data) {
 
   pass <- ifelse(all(X), TRUE, FALSE)
 
+  
+  if(debug)
+    browser()
+  
   return(list(func = fname, pass = pass, namespace="manager", subject="warnings", key="orderedvars", warning_msg = "There is a problem with the ordered variables"))
 
   #stop_invalid_data("warnsubgrpvars")
@@ -349,8 +353,9 @@ test_strata_ordered_andref <- function(.data) {
 
 
 # 14 Subgroup order is an increasing sequence when ordered_dimension = 1 ----
-test_strata_subgroup_sequence <- function(.data) {
+test_strata_subgroup_sequence <- function(.data, debug = FALSE) {
   # if an ordered dimension then the sequence must be 1:nrow(strata)
+
 
 
   .data <- .data %>% ungroup()
@@ -376,6 +381,9 @@ test_strata_subgroup_sequence <- function(.data) {
 
   pass <- ifelse(all(X), TRUE, FALSE)
 
+  if(debug)
+    browser()
+  
   return(list(func = fname, pass = pass, namespace="manager", subject="warnings", key="sequence", warning_msg = "Subgroup order must be an increasing sequence of integers starting with 1 when ordered dimension = 1"))
 
   #  stop_invalid_data("warngrpsequence")
@@ -452,8 +460,9 @@ test_indicator_unique_names <- function(.data) {
 }
 
 # 19 Observations have the same value when grouped by setting, year, source, indicator ----
-test_consistent_indicinfo <- function(.data) {
-
+# meaning that for setting_average, favourable_indicator and indicator_scale there
+# should be just one value when grouping on setting, year, source, indicator
+test_consistent_indicinfo <- function(.data, debug = FALSE) {
 
   .data <- .data %>% ungroup()
   thecall <- as.character(match.call()[[1]])
@@ -480,6 +489,10 @@ test_consistent_indicinfo <- function(.data) {
   X <- strata_count == 1
 
   pass <- ifelse(all(X), TRUE, FALSE)
+  
+  if(debug)
+    browser()
+  
   return(list(func = fname, pass = pass, namespace="manager", subject="warnings", key="indicators", warning_msg = "Indicator information is not consistent"))
 
   # stop_invalid_data("warndupobscombo")
@@ -487,7 +500,7 @@ test_consistent_indicinfo <- function(.data) {
 }
 
 # 20 Ordered dimension must be the same for combinations of setting, year, source, indicator, dimension ----
-test_consistent_ordered_dimension <- function(.data) {
+test_consistent_ordered_dimension <- function(.data, debug = FALSE) {
 
 
   .data <- .data %>% ungroup()
@@ -515,6 +528,10 @@ test_consistent_ordered_dimension <- function(.data) {
   X <- strata_count == 1
 
   pass <- ifelse(all(X), TRUE, FALSE)
+  
+  if(debug)
+    browser()
+  
   return(list(func = fname, pass = pass, namespace="manager", subject="warnings", key="ordereddims", warning_msg = "There is inconsistency in ordered dimensions"))
 
 

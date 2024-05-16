@@ -9,9 +9,6 @@ HEAT_rename_variables(.data, table_type = "all")
 \arguments{
 \item{table_type}{}
 }
-\value{
-
-}
 \description{
 Occasionally the database we've received has a slightly different name than the app expects
 and we need to alter it to fit.

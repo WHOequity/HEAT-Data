@@ -134,6 +134,7 @@ survey_boundary_move_unzip <- function(newpath, survey, download_folder = "~/Dow
 #' @export
 shp_to_tibble <- function(shp, DHS_CountryCode, surveyinfo, shpfilename, quiet = FALSE){
 
+  message(shpfilename)
   n_original <- nrow(shp)
   shp <- filter(shp, DHSCC == DHS_CountryCode)
 
@@ -158,7 +159,7 @@ shp_to_tibble <- function(shp, DHS_CountryCode, surveyinfo, shpfilename, quiet =
     return(NULL)
   }
 
-  shp <- shp[, c("REGCODE", "REGNAME", "DHSREGEN", "DHSREGFR", "DHSREGSP", "geometry")]
+  shp <- shp[, c("REGCODE", "REG_ID", "REGNAME", "DHSREGEN", "DHSREGFR", "DHSREGSP", "geometry")]
   
   # For mozambique 2015 AIS
   shp$REGNAME <- shp$REGNAME %>% stringr::str_replace("\\n", "") %>% stringr::str_replace("\\r", "")
@@ -240,26 +241,26 @@ spatial_fix_survey_years <- function(.data){
   # be the year that is in the WHO data so from DHS year to WHO year
   .data <- mutate(.data,
                   year = case_when(
-                    iso3 == "ARM" & year == 2016 ~ 2015,
+                    #iso3 == "ARM" & year == 2016 ~ 2015,
                     iso3 == "BGD" & year == 1994 ~ 1993,#bangladesh
                     iso3 == "BGD" & year == 1997 ~ 1996,
                     iso3 == "BGD" & year == 2000 ~ 1999,
                     iso3 == "BEN" & year == 2012 ~ 2011,#benin
                     iso3 == "BFA" & year == 1993 ~ 1992,#burkina faso
-                    iso3 == "BFA" & year == 1999 ~ 1998,#burkina faso
+                    #iso3 == "BFA" & year == 1999 ~ 1998,#burkina faso
                     iso3 == "TCD" & year == 1997 ~ 1996, #chad
                     iso3 == "CIV" & year == 2012 ~ 2011,# cote d'ivoire
                     iso3 == "GTM" & year == 1999 ~ 1998, #
-                    iso3 == "GTM" & year == 2015 ~ 2014,
+                    #iso3 == "GTM" & year == 2015 ~ 2014,
                     iso3 == "HTI" & year == 2006 ~ 2005,
                     iso3 == "IND" & year == 1999 ~ 1998,
-                    iso3 == "IND" & year == 2006 ~ 2005,
+                    #iso3 == "IND" & year == 2006 ~ 2005,
                     iso3 == "IDN" & year == 2003 ~ 2002, #
                     iso3 == "MDG" & year == 2004 ~ 2003, # madagascar
                     iso3 == "MLI" & year == 1996 ~ 1995, # mali
                     iso3 == "MMR" & year == 2016 ~ 2015,# myanmar
                     iso3 == "NIC" & year == 1998 ~ 1997,
-                    #iso3 == "PER" & year == 2007 ~ 2008,
+                    iso3 == "PNG" & year == 2017 ~ 2016,
                     iso3 == "RWA" & year == 2015 ~ 2014, #rwanda
                     iso3 == "ZMB" & year == 2002 ~ 2001, # zambia
                     iso3 == "SEN" & year == 1993 ~ 1992,
@@ -435,8 +436,11 @@ union_subnational_boundaries <- function(.data, just_testing = FALSE){
 drop_problematic_country_yr <- function(.data){
 
   # looking at who vs dhs and there are too many oddities
-  .data <- filter(.data, !(iso3 == "EGY" & year == 2014))
+  #.data <- filter(.data, !(iso3 == "EGY" & year == 2014))
 
+  # git783
+  .data <- filter(.data, !(iso3 == "TZA" & year == 1999))
+  
   # only a single geography for chad this year (note the orig file was 1997, but changed to 1996)
   .data <- filter(.data, !(iso3 == "TCD" & year == 1996))
 }
@@ -453,8 +457,8 @@ choose_one_shp <- function(.data){
 
   #!!! careful, this is the year BEFORE "fixing". For example, Guatemala (GTM, GU) the shapefile is 2015
   # and then we change to 2014 but here should be 2015
-  
-  #!! also careful these are the shapefiles we are REMOVING
+
+  #!! also careful these are the shapefiles we are REMOVING!!!
   .data <- filter(.data, !(iso3 == "BOL" & year == 1994 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "COL" & year == 2005 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "COL" & year == 2010 & shapefile_name == "sdr_subnational_boundaries.shp"))
@@ -463,17 +467,26 @@ choose_one_shp <- function(.data){
   .data <- filter(.data, !(iso3 == "EGY" & year == 1992 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "EGY" & year == 1995 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "EGY" & year == 2000 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "EGY" & year == 2005 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "EGY" & year == 2008 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "GTM" & year == 2015 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "IND" & year == 1991 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "IND" & year == 2015 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "IND" & year == 2020 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "JOR" & year == 2007 & shapefile_name == "sdr_subnational_boundaries.shp"))
+  .data <- filter(.data, !(iso3 == "JOR" & year == 2009 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "JOR" & year == 2012 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "KEN" & year == 2014 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "LBR" & year == 2013 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "LBR" & year == 2019 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "MDG" & year == 2016 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "MWI" & year == 2010 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "MWI" & year == 2015 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "NGA" & year == 2008 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "NGA" & year == 2013 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "NGA" & year == 2015 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "NGA" & year == 2018 & shapefile_name == "sdr_subnational_boundaries.shp"))
+  .data <- filter(.data, !(iso3 == "NGA" & year == 2021 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "NPL" & year == 1996 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "NPL" & year == 1996 & shapefile_name == "sdr_subnational_boundaries3.shp"))
   .data <- filter(.data, !(iso3 == "NPL" & year == 2001 & shapefile_name == "sdr_subnational_boundaries2.shp"))
@@ -482,16 +495,24 @@ choose_one_shp <- function(.data){
   .data <- filter(.data, !(iso3 == "NPL" & year == 2006 & shapefile_name == "sdr_subnational_boundaries3.shp"))
   .data <- filter(.data, !(iso3 == "NPL" & year == 2011 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "NPL" & year == 2011 & shapefile_name == "sdr_subnational_boundaries3.shp"))
+  .data <- filter(.data, !(iso3 == "PER" & year == 1992 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "PER" & year == 2004 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "PNG" & year == 2017 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "RWA" & year == 2015 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "SLE" & year == 2013 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "SLE" & year == 2019 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "TUR" & year == 2003 & shapefile_name == "sdr_subnational_boundaries2.shp"))
-  .data <- filter(.data, !(iso3 == "TZA" & year == 1992 & shapefile_name == "sdr_subnational_boundaries.shp"))
+  .data <- filter(.data, !(iso3 == "TZA" & year == 1992 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   .data <- filter(.data, !(iso3 == "TZA" & year == 2003 & shapefile_name == "sdr_subnational_boundaries.shp"))
+  .data <- filter(.data, !(iso3 == "TZA" & year == 2007 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "TZA" & year == 2012 & shapefile_name == "sdr_subnational_boundaries2.shp"))
+  .data <- filter(.data, !(iso3 == "TZA" & year == 2017 & shapefile_name == "sdr_subnational_boundaries2.shp"))
   
   # per git 418
   # Mozambique 2015 only has one shapefile AIS, no filtering required
   .data <- filter(.data, !(iso3 == "SEN" & SVYTYPE == "DHS" & year == 2012 & shapefile_name == "sdr_subnational_boundaries.shp"))
   .data <- filter(.data, !(iso3 == "SEN" & SVYTYPE == "DHS" & year == 2014 & shapefile_name == "sdr_subnational_boundaries.shp"))
+  .data <- filter(.data, !(iso3 == "SEN" & SVYTYPE == "MIS" & year == 2020 & shapefile_name == "sdr_subnational_boundaries2.shp"))
 
   # Now if we have multiple shapefiles remaining chose the one with more geometries
   .data <- group_by(.data, DHSCC, iso3, country, SVYTYPE, year) %>%

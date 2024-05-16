@@ -21,9 +21,6 @@ multi_use_survey_geo(
 
 \item{keep_existing}{should the record for the existing year stay in the dataset}
 }
-\value{
-
-}
 \description{
 Add new record in DHS survey geo dataset that is a duplicate of an existing year except includes a new year.
 }

@@ -42,7 +42,7 @@ HEAT_data_fixes <- function(.data, table_type = "all"){
 #'
 #' @return
 #' @export
-HEAT_rename_variables <- function(.data, table_type = "all"){
+HEAT_rename_variables <- function(.data, table_type){
 
   if(table_type == "country_data"){
 
@@ -51,12 +51,17 @@ HEAT_rename_variables <- function(.data, table_type = "all"){
                         whoreg6_name = whoreg_name
                         )
 
-    # TODO: Not sure if this is needed
-    #countries$wbincome <- countries$wbincome_name
 
   }
 
   if(table_type == "heat_data"){
+    
+    if(!"year" %in% names(.data) && "date" %in% names(.data)){
+      .data <- .data %>% rename(
+        year = date
+      )
+    }
+    
 
   }
 
@@ -115,7 +120,7 @@ HEAT_force_variable_types <- function(.data, table_type = "all") {
 
     formats <- split(heatdata::HEAT_variable_descriptions$VARIABLE,
                      heatdata::HEAT_variable_descriptions$Format)
-    existing_class <- purrr::map_chr(.data, class)
+    existing_class <- purrr::map_chr(.data, ~class(.)[1])
 
     types <- c("integer", "numeric", "character")
     adjusted_formats <- purrr::map(types, function(x) {
@@ -127,9 +132,26 @@ HEAT_force_variable_types <- function(.data, table_type = "all") {
     names(adjusted_formats) <- types
 
 
-    .data <- dplyr::mutate_at(.data, .vars = vars(adjusted_formats$integer), .funs = as.integer)
-    .data <- dplyr::mutate_at(.data, .vars = vars(adjusted_formats$numeric), .funs = as.numeric)
-    .data <- dplyr::mutate_at(.data, .vars = vars(adjusted_formats$character), .funs = funs(trimws(as.character(.))))
+    
+    .data <- .data %>% 
+      dplyr::mutate(
+        dplyr::across(adjusted_formats$integer, as.integer)
+      )
+    
+    .data <- .data %>% 
+      dplyr::mutate(
+        dplyr::across(adjusted_formats$numeric, as.numeric)
+      )
+    
+    f <- function(vals) trimws(as.character(vals))
+    .data <- .data %>% 
+      dplyr::mutate(
+        dplyr::across(adjusted_formats$character, f)
+      )
+    
+    # .data <- dplyr::mutate_at(.data, .vars = vars(adjusted_formats$integer), .funs = as.integer)
+    # .data <- dplyr::mutate_at(.data, .vars = vars(adjusted_formats$numeric), .funs = as.numeric)
+    # .data <- dplyr::mutate_at(.data, .vars = vars(adjusted_formats$character), .funs = funs(trimws(as.character(.))))
 
   }
 

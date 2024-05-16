@@ -9,9 +9,6 @@ test_has_required_variables(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 required variables are listed originally in an Excel file in data-raw
 but were processed into a variable exposed by this package (\code{HEAT_variable_descriptions})

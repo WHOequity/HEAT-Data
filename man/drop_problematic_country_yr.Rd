@@ -9,9 +9,6 @@ drop_problematic_country_yr(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 Title
 }

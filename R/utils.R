@@ -1,7 +1,14 @@
 
 # https://stackoverflow.com/questions/41609912/remove-rows-where-all-variables-are-na-using-dplyr
 drop_allNA_rows <- function(data) {
-  dplyr::filter(data, Reduce(`+`, lapply(data, is.na)) != ncol(data))
+  
+  n_columns <- ncol(data)
+  n_na <- rowSums(is.na(data))
+  data %>% 
+    dplyr::filter(
+      n_na != n_columns
+    )
+  #dplyr::filter(data, Reduce(`+`, lapply(data, is.na)) != ncol(data))
 }
 
 
@@ -165,3 +172,43 @@ sample_HEAT_data <- function(.data, n_per_dimension = 10) {
 
   semi_join(.data, tmp_strata, by = c("setting", "year", "source", "dimension", "indicator_abbr"))
 }
+
+stoptxt <- function(txt){
+  crayon::red(txt)
+}
+
+infotxt <- function(txt){
+  crayon::green(txt)
+}
+
+warningtxt <- function(txt){
+  crayon::blue(txt)
+}
+
+
+#' Title
+#'
+#' @param lstext 
+#' @param tblname 
+#' @param pkg 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_heat_table <- function(datname, tblname, pkg = "heatdata", type = "parquet"){
+  # getExportedValue(pkg, paste0("data", "_", lstext)) %>%
+  #   purrr::pluck(tblname)
+  datdir <- system.file("datasets", package = "heatdata")
+  if(tblname != "determinants"){
+    filename <- paste0(datdir, "/", datname, "_",tblname, ".", type)
+    dat <- arrow::read_parquet(filename)
+  } else {
+    filename <- paste0(datdir, "/", "determinants", ".", type)
+    dat <- arrow::read_parquet(filename)
+  }
+  
+  dat
+  
+}
+

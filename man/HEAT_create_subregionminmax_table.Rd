@@ -9,9 +9,6 @@ HEAT_create_subregionminmax_table(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 Compute the table of subregion min and max values for the mapping (only required for HEAT)
 }

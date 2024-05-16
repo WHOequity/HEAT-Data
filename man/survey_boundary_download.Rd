@@ -9,9 +9,6 @@ survey_boundary_download(sel, link)
 \arguments{
 \item{link}{}
 }
-\value{
-
-}
 \description{
 survey_boundary_download
 }

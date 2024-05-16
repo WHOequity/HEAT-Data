@@ -4,13 +4,10 @@
 \alias{standardize_region_text}
 \title{Title}
 \usage{
-standardize_region_text(str)
+standardize_region_text(str, tolower = TRUE)
 }
 \arguments{
 \item{str}{}
-}
-\value{
-
 }
 \description{
 Title

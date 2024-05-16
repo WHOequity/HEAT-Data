@@ -11,9 +11,6 @@ spatial_fix_survey_years(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 Change the DHS shapefile year so that the year matches the
 WHO HEAT year -- for DHS surveys that spanned two years, DHS

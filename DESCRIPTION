@@ -13,12 +13,13 @@ Description: An R package to generate data for the Health Equity Assessment Tool
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.2.0
 VignetteBuilder: knitr
 Imports: 
     dplyr,
     purrr,
-    tictoc
+    tictoc,
+    arrow
 Suggests: 
     readr,
     fs,
@@ -28,4 +29,5 @@ Suggests:
 Remotes:
     whoequity/heat-measures
 License: GPL-3
-
+Depends: 
+    R (>= 2.10)

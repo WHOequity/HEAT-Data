@@ -9,9 +9,6 @@ HEAT_create_setyrsrc_table(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 the actual names of the setting, year and source variables (which
 might be setting, year and source) are in the heatmeasures::setting_year_source_variables

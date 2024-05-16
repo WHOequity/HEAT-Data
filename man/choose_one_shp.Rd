@@ -9,9 +9,6 @@ choose_one_shp(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 Title
 }

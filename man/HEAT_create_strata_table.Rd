@@ -9,9 +9,6 @@ HEAT_create_strata_table(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 this function makes use of the heatmeasures::strata_variables for the
 definition of what is a strata

@@ -9,9 +9,6 @@ HEAT_table_validation_tests(.data, tests_to_run)
 \arguments{
 \item{tests_to_run}{}
 }
-\value{
-
-}
 \description{
 Apply validation tests to the table
 }
@@ -21,5 +18,4 @@ var_tests <- stringr::str_extract(var_names, "^test_.*")
 var_results <- na.exclude(var_tests)
 
 # test_results <- HEAT_table_validation_tests(data_heat_raw, tests)
-
 }

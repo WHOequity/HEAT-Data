@@ -13,9 +13,6 @@ subgroups get the same color. So if the cutoff is 7 all dimensions with 7 or few
 subgroups will get different colors (either sequential or qualitative) all dimensions
 with 8 or more subgroups will be assigned a single color}
 }
-\value{
-
-}
 \description{
 Creates the dimension table including adding the colors and shapes for dimension subgroups
 }

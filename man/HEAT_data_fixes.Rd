@@ -9,9 +9,6 @@ HEAT_data_fixes(.data, table_type = "all")
 \arguments{
 \item{table_type}{"country_data", "heat_data" (internal database)}
 }
-\value{
-
-}
 \description{
 These might include fixes that need to be applied to all data (remove rows
 with all NA values) or fixes that should

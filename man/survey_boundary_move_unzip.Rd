@@ -14,9 +14,6 @@ survey_boundary_move_unzip(
 \arguments{
 \item{search_pattern}{}
 }
-\value{
-
-}
 \description{
 Title
 }

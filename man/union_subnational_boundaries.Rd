@@ -9,9 +9,6 @@ union_subnational_boundaries(.data, just_testing = FALSE)
 \arguments{
 \item{just_testing}{}
 }
-\value{
-
-}
 \description{
 Title
 }

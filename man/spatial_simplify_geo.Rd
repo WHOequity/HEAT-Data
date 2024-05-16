@@ -9,9 +9,6 @@ spatial_simplify_geo(.data, just_testing = FALSE)
 \arguments{
 \item{just_testing}{}
 }
-\value{
-
-}
 \description{
 Title
 }

@@ -18,9 +18,6 @@ compare_old_and_new_data(
 \arguments{
 \item{show_example}{}
 }
-\value{
-
-}
 \description{
 Title
 }

@@ -17,9 +17,6 @@ HEAT_create_random_sample(
 \arguments{
 \item{n_per_dimension}{}
 }
-\value{
-
-}
 \description{
 Title
 }

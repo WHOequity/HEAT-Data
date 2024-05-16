@@ -9,9 +9,6 @@ spatial_fix_country_names(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 Title
 }

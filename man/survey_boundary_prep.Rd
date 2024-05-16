@@ -16,9 +16,6 @@ survey_boundary_prep(
 
 \item{spatialdir}{}
 }
-\value{
-
-}
 \description{
 Title
 }

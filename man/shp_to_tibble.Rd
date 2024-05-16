@@ -9,9 +9,6 @@ shp_to_tibble(shp, DHS_CountryCode, surveyinfo, shpfilename, quiet = FALSE)
 \arguments{
 \item{shp}{}
 }
-\value{
-
-}
 \description{
 Title
 }

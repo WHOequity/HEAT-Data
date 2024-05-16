@@ -9,9 +9,6 @@ HEAT_drop_defective_strata(.data)
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 Drop strata with all missing estimates
 }

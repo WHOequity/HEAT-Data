@@ -9,9 +9,6 @@ HEAT_force_variable_types(.data, table_type = "all")
 \arguments{
 \item{.data}{}
 }
-\value{
-
-}
 \description{
 Force variables to be the types they're supposed to be
 }
